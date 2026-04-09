@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scripts</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 720px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      color: #58a6ff;
+      margin-bottom: 16px;
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin-bottom: 12px;
+    }
+
+    .code-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      max-height: 60vh;
+      overflow-y: auto;
+      color: #c9d1d9;
+    }
+
+    .btn-copy {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #238636;
+      color: #fff;
+      transition: background 0.2s;
+    }
+
+    .btn-copy:hover { background: #2ea043; }
+    .btn-copy:active { background: #196c2e; }
+
+    .btn-copy.copied {
+      background: #58a6ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ AntiRetry</h1>
+    <p class="status" id="status">Loading script from remote...</p>
+    <div class="code-box" id="codeBox">Loading...</div>
+    <button class="btn-copy" id="copyBtn" disabled>Copy to Clipboard</button>
+  </div>
+
+  <script>
+    const SCRIPT_URL = './antiretry.js';
+    const codeBox = document.getElementById('codeBox');
+    const copyBtn = document.getElementById('copyBtn');
+    const status = document.getElementById('status');
+
+    // Fetch the script as plain text (never executed)
+    fetch(SCRIPT_URL)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then(code => {
+        codeBox.textContent = code;
+        copyBtn.disabled = false;
+        status.textContent = `Loaded from: ${SCRIPT_URL}`;
+      })
+      .catch(err => {
+        codeBox.textContent = `Error loading script: ${err.message}`;
+        status.textContent = 'Failed to load script.';
+      });
+
+    // Copy to clipboard on button click
+    copyBtn.addEventListener('click', () => {
+      const code = codeBox.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        copyBtn.textContent = '✅ Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy to Clipboard';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
