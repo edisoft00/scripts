@@ -127,10 +127,21 @@
     copyBtn.addEventListener('click', () => {
       let code = codeBox.textContent;
       
-      // Minify: Remove comments and extra whitespace
+      // Minify: Remove comments
       code = code.replace(/\/\*[\s\S]*?\*\//g, '')
-                 .replace(/([^:]|^)\/\/.*/g, '$1')
-                 .replace(/\s+/g, ' ')
+                 .replace(/([^:]|^)\/\/.*/g, '$1');
+
+      // Temporarily replace strings to avoid messing with their content
+      const strings = [];
+      code = code.replace(/(["'`])(?:\\[\s\S]|(?!\1)[^\\])*\1/g, match => {
+        strings.push(match);
+        return `___STR${strings.length - 1}___`;
+      });
+
+      // Compress whitespace and remove spaces around punctuation
+      code = code.replace(/\s+/g, ' ')
+                 .replace(/\s*([{}[\]()=<>&|!?:;,+\-*\/~^%])\s*/g, '$1')
+                 .replace(/___STR(\d+)___/g, (_, i) => strings[i])
                  .trim();
 
       navigator.clipboard.writeText(code).then(() => {
